@@ -1,2 +1,3 @@
-# pixel-tetris
-Created with CodeSandbox
+# Pixel tetris
+
+In progress. Created with CodeSandbox

@@ -1,18 +1,11 @@
 import "./styles/styles.scss";
 
-// document.getElementById("app").innerHTML = `
-// <h1>Hello Vanilla!</h1>
-// <div>
-//   We use the same configuration as Parcel to bundle this sandbox, you can find more
-//   info about Parcel
-//   <a href="shttps://parceljs.org" target="_blank" rel="noopener noreferrer">here</a>.
-// </div>
-// `;
+import { getRandom, createDimArr } from "./functions.js";
 
 class Tetris {
   constructor() {
     this.plane = document.getElementById("game");
-    this.allSquares = [];
+    this.allSquares = createDimArr(15, 10);
     this.shapes = ["L", "J", "O", "I", "S", "Z", "T"];
     // this.shapes = ["L", "S"];
     this.squareSize = 40;
@@ -20,13 +13,14 @@ class Tetris {
     this.rotation = 0;
     this.position = { top: 0, left: 0 };
     this.intervalPlay = null;
-    this.intervalStep = 500;
+    this.intervalStep = 750;
     this.play = false;
     this.lost = false;
     // this.origin = { top: 0, left: 0 };
 
-    this.makeShape(this.shapes[this.getRandom(0, this.shapes.length - 1)]);
-    this.onSquares();
+    this.makeShape(this.shapes[getRandom(0, this.shapes.length - 1)]);
+
+    // this.onSquares();
     // this.makeShape("Z");
     // for (let i = 0; i < this.allSquares.length; i++) {
     //   console.log(this.allSquares[i].offsetTop, this.allSquares[i].offsetLeft);
@@ -38,8 +32,10 @@ class Tetris {
     this.shape = [];
     for (let i = 1; i <= 4; i++) {
       let square = document.createElement("div");
-      square.className = "square square_" + i + " shape_" + type;
-      this.allSquares.push(square);
+      square.className =
+        i === 2
+          ? "square square_" + i + " shape_" + type + " pivot"
+          : "square square_" + i + " shape_" + type;
       this.shape.push(square);
       this.plane.appendChild(square);
     }
@@ -60,13 +56,11 @@ class Tetris {
     this.play = true;
     this.intervalPlay = setInterval(() => {
       this.onSquares();
-      if (!this.onFloor()) {
+      if (!this.onFloor() && !this.onSquares(this.squareSize)) {
         this.moveEach();
       } else {
-        // leave shape at this position and create next shape
-        // clearInterval(this.intervalPlay);
-
-        this.makeShape(this.shapes[this.getRandom(0, this.shapes.length - 1)]);
+        this.addToAllSquares();
+        this.makeShape(this.shapes[getRandom(0, this.shapes.length - 1)]);
       }
     }, this.intervalStep);
   }
@@ -86,6 +80,13 @@ class Tetris {
       }
     }
   }
+  addToAllSquares() {
+    for (let i = 0; i < this.shape.length; i++) {
+      let rowIndex = this.shape[i].offsetTop / this.squareSize; // top
+      let columnIndex = this.shape[i].offsetLeft / this.squareSize; // left
+      this.allSquares[rowIndex][columnIndex] = this.shape[i];
+    }
+  }
   slide(direction) {
     if (direction === "left") {
       this.slideEach(-this.squareSize);
@@ -94,7 +95,7 @@ class Tetris {
     }
   }
   slideEach(val) {
-    if (!this.onWall(val)) {
+    if (!this.onWall(val) & !this.onSquares(0, val)) {
       for (let i = 0; i < this.shape.length; i++) {
         this.position.left = this.shape[i].offsetLeft + val;
         this.shape[i].style.left = this.shape[i].offsetLeft + val + "px";
@@ -122,55 +123,40 @@ class Tetris {
     }
     return false;
   }
-  onSquares() {
+  onSquares(top = 0, left = 0) {
     for (let i = 0; i < this.shape.length; i++) {
-      let newTopOffset = this.shape[i].offsetTop; // + this.squareSize;
-      console.log(
-        document.elementFromPoint(
-          this.plane.offsetLeft + this.shape[i].offsetLeft + 20,
-          this.plane.offsetTop + newTopOffset + 20
-        )
-      );
+      let newRowIndex = (this.shape[i].offsetTop + top) / this.squareSize;
+      let newColumnIndex = (this.shape[i].offsetLeft + left) / this.squareSize;
+      if (this.allSquares[newRowIndex][newColumnIndex] != null) {
+        return true;
+      }
     }
-    // return false;
+    return false;
   }
   rotate(rotation) {
     if (rotation === "left") {
-      this.rotation = this.rotation + 90 === 360 ? 0 : this.rotation + 90;
     } else {
-      this.rotation = this.rotation - 90 === -90 ? 270 : this.rotation - 90;
     }
-    this.shape.style.transform = "rotate(" + this.rotation + "deg)";
-    // var x = termin.top + Math.cos(angle) * div.height;
-    // var y = div.left + Math.sin(angle) * div.height;
-    // console.log(this.shape.style.transform);
-    // console.log(this.position, this.origin);
-    console.log(this.shape.offsetLeft, this.shape.offsetTop);
-  }
 
-  getRandom(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    console.log(this.shape.offsetLeft, this.shape.offsetTop);
   }
 }
 
 let tetris = new Tetris();
-// tetris.makeShape("T");
 
 document.addEventListener("keydown", event => {
-  // change snake's direction
   if (["ArrowUp", "ArrowDown"].includes(event.key)) {
-    event.preventDefault(); // don't scroll page
+    event.preventDefault();
     let rotation = event.key === "ArrowUp" ? "left" : "right";
     tetris.rotate(rotation);
   }
   if (["ArrowLeft", "ArrowRight"].includes(event.key)) {
-    event.preventDefault(); // don't scroll page
+    event.preventDefault();
     let rotation = event.key === "ArrowLeft" ? "left" : "right";
     tetris.slide(rotation);
   }
-  // start + restart + pausa: spacja
   if (event.key === " ") {
-    event.preventDefault(); // don't scroll page
+    event.preventDefault();
     tetris.togglePlay();
   }
 });

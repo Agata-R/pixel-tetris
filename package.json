@@ -1,7 +1,7 @@
 {
   "name": "pixel-tetris",
   "version": "1.0.0",
-  "description": "In progres",
+  "description": "In progress.",
   "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
