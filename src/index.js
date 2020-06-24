@@ -67,7 +67,12 @@ class Tetris {
       this.moveEach();
     } else {
       this.addToAllSquares();
-      this.makeShape(this.shapes[getRandom(0, this.shapes.length - 1)]);
+      if (this.isAboveLine()) {
+        this.lose();
+      } else {
+        this.removeFullLines();
+        this.makeShape(this.shapes[getRandom(0, this.shapes.length - 1)]);
+      }
     }
   }
   pause() {
@@ -77,6 +82,11 @@ class Tetris {
   restart() {
     this.play = false;
     clearInterval(this.intervalPlay);
+  }
+  lose() {
+    this.play = false;
+    clearInterval(this.intervalPlay);
+    console.log("lose");
   }
   moveEach() {
     if (true) {
@@ -171,7 +181,6 @@ class Tetris {
     }
     return true;
   }
-
   squareOnSquares(tmpSquare, offset) {
     let newRowIndex = (tmpSquare.offsetTop + offset.top) / this.squareSize;
     let newColumnIndex = (tmpSquare.offsetLeft + offset.left) / this.squareSize;
@@ -180,7 +189,14 @@ class Tetris {
     }
     return false;
   }
-
+  shapeOnSquares(tmpShape, offset) {
+    for (let i = 0; i < tmpShape.length; i++) {
+      if (this.squareOnSquares(tmpShape[i], offset)) {
+        return true;
+      }
+    }
+    return false;
+  }
   squareOutside(tmpSquare, offset) {
     if (
       tmpSquare.offsetLeft + offset.left < 0 ||
@@ -206,9 +222,37 @@ class Tetris {
     }
     return false;
   }
-  shapeOnSquares(tmpShape, offset) {
-    for (let i = 0; i < tmpShape.length; i++) {
-      if (this.squareOnSquares(tmpShape[i], offset)) {
+  removeFullLines() {
+    for (let i = this.allSquares.length - 1; i >= 0; i--) {
+      if (!this.allSquares[i].includes(undefined)) {
+        for (let j = 0; j < this.allSquares[i].length; j++) {
+          this.plane.removeChild(this.allSquares[i][j]);
+          delete this.allSquares[i][j];
+        }
+        this.moveLinesDown(i - 1);
+        i++;
+      }
+    }
+    console.log(this.allSquares);
+  }
+  moveLinesDown(fromRow) {
+    let lineWasEmpty = true;
+    for (let i = 0; i < this.allSquares[fromRow].length; i++) {
+      if (this.allSquares[fromRow][i] !== undefined) {
+        this.allSquares[fromRow][i].style.top =
+          this.allSquares[fromRow][i].offsetTop + this.squareSize + "px";
+        this.allSquares[fromRow + 1][i] = this.allSquares[fromRow][i];
+        delete this.allSquares[fromRow][i];
+        lineWasEmpty = false;
+      }
+    }
+    if (!lineWasEmpty) {
+      this.moveLinesDown(fromRow - 1);
+    }
+  }
+  isAboveLine() {
+    for (let i = 0; i < this.allSquares[2].length; i++) {
+      if (this.allSquares[2][i] !== undefined) {
         return true;
       }
     }
