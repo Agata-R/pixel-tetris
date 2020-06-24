@@ -1,188 +1,227 @@
 @import "_basic.scss";
-
-$colors: ("L": olivedrab, "J": coral, "T": dodgerblue, "Z": orangered, "S": teal, "O": darkorchid, "I": hotpink);
+$left: 160px;
+$colors: (
+  "L": olivedrab,
+  "J": coral,
+  "T": dodgerblue,
+  "Z": orangered,
+  "S": teal,
+  "O": darkorchid,
+  "I": hotpink
+);
 
 .header,
-.footer{
-  background-color: darken($bg,5%);
+.footer {
+  background-color: darken($bg, 5%);
   width: 100%;
   padding: $gap;
   text-align: center;
 }
-
-.game{
+.game {
   position: relative;
-  background-color: darken($bg,2%);
-  border: 15px solid lighten($bg,2%);
+  background-color: darken($bg, 2%);
+  border: 15px solid lighten($bg, 2%);
   width: 400px;
   height: 600px;
   box-sizing: content-box;
 }
-  .line{
-    position: absolute;
-    top: 80px;
-    height:40px;
-    // background-color: lighten($bg,2%);
-    border-bottom: 1px solid lighten($bg,10%);
-    width: 100%;
+hr{
+  border-color: lighten($bg, 5%);
+  border-width: 0 0 1px 0;
+  margin: $gap/5 0;
+}
+.line {
+  position: absolute;
+  top: 80px;
+  height: 40px;
+  // background-color: lighten($bg,2%);
+  border-bottom: 1px solid lighten($bg, 10%);
+  width: 100%;
+}
+.square {
+  width: 0;
+  height: 0;
+  border: 20px solid $bg;
+  border-radius: 10px;
+  position: absolute;
+}
+.message{
+  position: absolute;
+  top: calc(50% - 40px);
+  left: calc(50% - 100px);
+  width: 200px;
+  height: 80px;
+
+  background-color: lighten($bg, 10%);
+  z-index: 2;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+.score{
+  background-color: darken($bg, 2%);
+  border: 15px solid lighten($bg, 2%);
+  padding: $gap/2;
+  &_item{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
   }
-  .square{
-    width: 0;
-    height:0;
-    border: 20px solid $bg;
-    border-radius: 10px;
-    position: absolute;
+  &_value{
+    margin-left: 15px;
+    background-color: darken($bg, 5%);
+    padding: 3px 10px;
+    font-weight: 700;
   }
-$left: 160px;
-.shape{
-  overflow:hidden;
+}
+.hidden{
+  display: none;
+}
+.gray{
+  filter: grayscale(1);
+}
+.shape {
+  overflow: hidden;
   position: absolute;
   top: 0;
   left: 160px;
-  
-    /*colors*/
-    @each $key, $val in $colors {
-      &_#{$key}{
-        background-color: $val;
-        border-color: $val darken($val,5%) darken($val,5%) $val;
-      }
-    }
-    // &_L,
-    // &_J,
-    // &_Z,
-    // &_S,
-    // &_T{
-    //   width: 80px;
-    //   height: 120px;
-    //   transform-origin: 60px 60px;
-    // }
-  &_L{
 
-    &.square_1{
+  /*colors*/
+  @each $key, $val in $colors {
+    &_#{$key} {
+      background-color: $val;
+      border-color: $val darken($val, 5%) darken($val, 5%) $val;
+    }
+  }
+  &_L {
+    &.square_1 {
       top: 0;
       left: $left;
     }
-    &.square_2{
+    &.square_2 {
       top: 40px;
       left: $left;
     }
-    &.square_3{
+    &.square_3 {
       top: 80px;
       left: $left;
     }
-    &.square_4{
+    &.square_4 {
       top: 80px;
       left: $left + 40px;
     }
   }
-  &_J{
-    &.square_1{
+  &_J {
+    &.square_1 {
       top: 0;
       left: $left + 40px;
     }
-    &.square_2{
+    &.square_2 {
       top: 40px;
       left: $left + 40px;
     }
-    &.square_3{
+    &.square_3 {
       top: 80px;
       left: $left + 40px;
     }
-    &.square_4{
+    &.square_4 {
       top: 80px;
       left: $left;
     }
   }
-&_T{
-  &.square_1{
-    top: 0;
-    left: $left + 40px;
+  &_T {
+    &.square_1 {
+      top: 0;
+      left: $left + 40px;
+    }
+    &.square_2 {
+      top: 40px;
+      left: $left + 40px;
+    }
+    &.square_3 {
+      top: 80px;
+      left: $left + 40px;
+    }
+    &.square_4 {
+      top: 40px;
+      left: $left;
+    }
   }
-  &.square_2{
-    top: 40px;
-    left: $left + 40px;
+  &_Z {
+    &.square_1 {
+      top: 0;
+      left: $left + 40px;
+    }
+    &.square_2 {
+      top: 40px;
+      left: $left + 40px;
+    }
+    &.square_3 {
+      top: 40px;
+      left: $left;
+    }
+    &.square_4 {
+      top: 80px;
+      left: $left;
+    }
   }
-  &.square_3{
-    top: 80px;
-    left: $left + 40px;
+  &_S {
+    &.square_1 {
+      top: 0;
+      left: $left;
+    }
+    &.square_2 {
+      top: 40px;
+      left: $left;
+    }
+    &.square_3 {
+      top: 40px;
+      left: $left + 40px;
+    }
+    &.square_4 {
+      top: 80px;
+      left: $left + 40px;
+    }
   }
-  &.square_4{
-    top: 40px;
-    left: $left;
+  &_O {
+    &.square_1 {
+      top: 40px;
+      left: $left;
+    }
+    &.square_2 {
+      top: 80px;
+      left: $left;
+    }
+    &.square_3 {
+      top: 40px;
+      left: $left + 40px;
+    }
+    &.square_4 {
+      top: 80px;
+      left: $left + 40px;
+    }
   }
-}
-&_Z{
-  &.square_1{
-    top: 0;
-    left: $left + 40px;
+  &_I {
+    $left: 120px;
+    &.square_1 {
+      top: 40px;
+      left: $left;
+    }
+    &.square_2 {
+      top: 40px;
+      left: $left + 40px;
+    }
+    &.square_3 {
+      top: 40px;
+      left: $left + 80px;
+    }
+    &.square_4 {
+      top: 40px;
+      left: $left + 120px;
+    }
   }
-  &.square_2{
-    top: 40px;
-    left: $left + 40px;
-
-  }
-  &.square_3{
-    top: 40px;
-    left: $left;
-  }
-  &.square_4{
-    top: 80px;
-    left: $left;
-  }
-}
-&_S{
-  &.square_1{
-    top: 0;
-    left: $left;
-  }
-  &.square_2{
-    top: 40px;
-    left: $left;
-  }
-  &.square_3{
-    top: 40px;
-    left: $left + 40px;
-  }
-  &.square_4{
-    top: 80px;
-    left: $left + 40px;
-  }
-}
-&_O{
-  &.square_1{
-    top: 40px;
-    left: $left;
-  }
-  &.square_2{
-    top: 80px;
-    left: $left;
-  }
-  &.square_3{
-    top: 40px;
-    left: $left + 40px;
-  }
-  &.square_4{
-    top: 80px;
-    left: $left + 40px;
-  }
-}
-&_I{
-  $left: 120px;
-  &.square_1{
-    top: 40px;
-    left: $left;
-  }
-  &.square_2{
-    top: 40px;
-    left: $left + 40px;
-  }
-  &.square_3{
-    top: 40px;
-    left: $left + 80px;
-  }
-  &.square_4{
-    top: 40px;
-    left: $left + 120px;
-  }
-}
 }

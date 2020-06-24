@@ -1,18 +1,14 @@
 /* variables */
-$color: OLIVEDRAB;
+$color: SLATEGRAY;
 $fc: #eee;
 $bg: #111;
 $gap: 50px;
 
-
 /**/
-
-
-
 
 /* base */
 
-html{
+html {
   box-sizing: border-box;
   *,
   *:after,
@@ -20,47 +16,51 @@ html{
     box-sizing: inherit;
   }
 }
-html, body{
+html,
+body {
   padding: 0;
   margin: 0;
 }
-body{
+body {
   background-color: $bg;
   color: $fc;
   font-family: sans-serif;
   line-height: 1.4;
 
   display: grid;
-  grid-template-areas: "header"
-                      "main"
-                      "aside"
-                      "footer";
+  grid-template-areas:
+    "header"
+    "main"
+    "aside"
+    "footer";
   gap: $gap;
 
-  @media (min-width: 769px){
-    grid-template-areas: "header header"
-                        "main  aside"
-                        "footer footer";
+  @media (min-width: 769px) {
+    grid-template-areas:
+      "header header"
+      "main  aside"
+      "footer footer";
   }
-  @media (min-width: 993px){
-    grid-template-columns:1fr 400px 200px 1fr;
-    grid-template-areas: "header header header header"
-                        ". main aside ."
-                        "footer footer footer footer";
+  @media (min-width: 993px) {
+    grid-template-columns: 1fr 400px 250px 1fr;
+    grid-template-areas:
+      "header header header header"
+      ". main aside ."
+      "footer footer footer footer";
   }
 }
-.header{
+.header {
   grid-area: header;
 }
-.main{
+.main {
   grid-area: main;
   justify-self: center;
 }
-.aside{
+.aside {
   grid-area: aside;
   justify-self: center;
   align-self: top;
 }
-.footer{
+.footer {
   grid-area: footer;
 }

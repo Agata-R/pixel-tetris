@@ -5,8 +5,11 @@ import { getRandom, createDimArr } from "./functions.js";
 class Tetris {
   constructor() {
     this.plane = document.getElementById("game");
+    this.scoreTxt = document.getElementById("score");
+    this.bestScoreTxt = document.getElementById("best_score");
     this.allSquares = createDimArr(15, 10);
     this.shapes = ["L", "J", "O", "I", "S", "Z", "T"];
+    this.message = this.makeMessages();
     this.shapeType = null;
     this.squareSize = 40;
     this.shape = [];
@@ -16,6 +19,8 @@ class Tetris {
     this.play = false;
     this.lost = false;
     this.ArrowDownPressed = false;
+    this.score = 0;
+    this.bestScore = 0;
     this.rotationPair = {
       "0,-1": { left: this.squareSize, top: this.squareSize },
       "1,0": { left: -this.squareSize, top: this.squareSize },
@@ -31,6 +36,13 @@ class Tetris {
       "-2,0": { left: 2 * this.squareSize, top: -2 * this.squareSize }
     };
 
+    this.init();
+  }
+  init() {
+    let line = document.createElement("div");
+    line.className = "line";
+    this.plane.appendChild(line);
+
     this.makeShape(this.shapes[getRandom(0, this.shapes.length - 1)]);
   }
   makeShape(type) {
@@ -43,6 +55,14 @@ class Tetris {
       this.plane.appendChild(square);
     }
   }
+  makeMessages() {
+    let msg = document.createElement("div");
+    msg.className = "message";
+    msg.id = "message";
+    msg.textContent = "Start";
+    this.plane.appendChild(msg);
+    return msg;
+  }
   togglePlay() {
     if (!this.play && !this.lost) {
       this.start();
@@ -54,6 +74,7 @@ class Tetris {
   }
   start() {
     this.play = true;
+    this.message.classList.add("hidden");
     this.intervalPlay = setInterval(
       this.playGame.bind(this),
       this.intervalStep
@@ -78,15 +99,29 @@ class Tetris {
   pause() {
     this.play = false;
     clearInterval(this.intervalPlay);
+    this.message.classList.remove("hidden");
+    this.message.textContent = "Pause";
   }
   restart() {
     this.play = false;
+    this.lost = false;
     clearInterval(this.intervalPlay);
+    this.plane.classList.remove("gray");
+    this.message.classList.remove("hidden");
+    this.message.textContent = "Start";
+
+    this.resetScore();
+    this.removeAllSquares();
+    this.makeShape(this.shapes[getRandom(0, this.shapes.length - 1)]);
   }
   lose() {
     this.play = false;
+    this.lost = true;
     clearInterval(this.intervalPlay);
-    console.log("lose");
+    this.plane.classList.add("gray");
+    this.message.classList.remove("hidden");
+    this.message.textContent = "Try again!";
+    this.updateBestScore();
   }
   moveEach() {
     if (true) {
@@ -229,11 +264,11 @@ class Tetris {
           this.plane.removeChild(this.allSquares[i][j]);
           delete this.allSquares[i][j];
         }
+        this.updateScore();
         this.moveLinesDown(i - 1);
         i++;
       }
     }
-    console.log(this.allSquares);
   }
   moveLinesDown(fromRow) {
     let lineWasEmpty = true;
@@ -258,9 +293,34 @@ class Tetris {
     }
     return false;
   }
+  removeAllSquares() {
+    for (let i = 0; i < this.allSquares.length; i++) {
+      for (let j = 0; j < this.allSquares[i].length; j++) {
+        if (this.allSquares[i][j] !== undefined) {
+          this.plane.removeChild(this.allSquares[i][j]);
+        }
+      }
+    }
+    this.allSquares = createDimArr(15, 10);
+  }
+  updateScore() {
+    this.score++;
+    this.scoreTxt.textContent = this.score;
+  }
+  resetScore() {
+    this.score = 0;
+    this.scoreTxt.textContent = 0;
+  }
+  updateBestScore() {
+    if (this.score > this.bestScore) {
+      this.bestScore = this.score;
+      this.bestScoreTxt.textContent = this.bestScore;
+      this.message.textContent = "Best score!";
+    }
+  }
 }
-
 let tetris = new Tetris();
+let gamePlane = document.getElementById("game");
 
 document.addEventListener("keydown", event => {
   if (event.key === "ArrowUp") {
@@ -286,4 +346,7 @@ document.addEventListener("keyup", event => {
     event.preventDefault();
     tetris.stopMoveDown();
   }
+});
+gamePlane.addEventListener("click", function() {
+  tetris.togglePlay();
 });
