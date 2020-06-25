@@ -5,14 +5,21 @@ import { getRandom, createDimArr } from "./functions.js";
 class Tetris {
   constructor() {
     this.plane = document.getElementById("game");
+    this.preview = document.getElementById("preview");
     this.scoreTxt = document.getElementById("score");
     this.bestScoreTxt = document.getElementById("best_score");
     this.allSquares = createDimArr(15, 10);
     this.shapes = ["L", "J", "O", "I", "S", "Z", "T"];
+    this.blockTypes = ["L", "J", "O", "I", "S", "Z", "T"];
     this.message = this.makeMessages();
-    this.shapeType = null;
     this.squareSize = 40;
-    this.shape = [];
+
+    this.block = [];
+    this.blockType = null;
+    this.nextBlock = [];
+    this.nextBlockType = null;
+    this.showNextBlockCounter = 0;
+
     this.intervalPlay = null;
     this.intervalStep = 1000;
     this.intervalStepQuick = 50;
@@ -43,16 +50,41 @@ class Tetris {
     line.className = "line";
     this.plane.appendChild(line);
 
-    this.makeShape(this.shapes[getRandom(0, this.shapes.length - 1)]);
+    let current = this.createBlock(this.plane);
+    this.block = current.block;
+    this.blockType = current.type;
   }
-  makeShape(type) {
-    this.shapeType = type;
-    this.shape = [];
+
+  createBlock(parent, classes = null, type = null) {
+    if (type === null) {
+      type = this.blockTypes[getRandom(0, this.blockTypes.length - 1)];
+    }
+    let blockElements = [];
     for (let i = 1; i <= 4; i++) {
       let square = document.createElement("div");
-      square.className = "square square_" + i + " shape_" + type;
-      this.shape.push(square);
-      this.plane.appendChild(square);
+      square.className = classes
+        ? "square square_" + i + " block_" + type + " " + classes
+        : "square square_" + i + " block_" + type;
+      blockElements.push(square);
+      parent.appendChild(square);
+    }
+    return { type: type, block: blockElements };
+  }
+  createNextBlock() {
+    let next = this.createBlock(this.plane, "preview");
+    this.nextBlock = next.block;
+    this.nextBlockType = next.type;
+  }
+  updateBlock() {
+    this.block = this.nextBlock;
+    this.blockType = this.nextBlockType;
+    this.removeClass(this.block, "preview");
+    this.nextBlock = [];
+    this.nextBlockType = null;
+  }
+  removeClass(arrElements, classToRemove) {
+    for (let i = 0; i < arrElements.length; i++) {
+      arrElements[i].classList.remove(classToRemove);
     }
   }
   makeMessages() {
@@ -82,17 +114,22 @@ class Tetris {
   }
   playGame() {
     if (
-      !this.shapeOutside(this.shape, { left: 0, top: this.squareSize }) &&
-      !this.shapeOnSquares(this.shape, { left: 0, top: this.squareSize })
+      !this.shapeOutside(this.block, { left: 0, top: this.squareSize }) &&
+      !this.shapeOnSquares(this.block, { left: 0, top: this.squareSize })
     ) {
       this.moveEach();
+      if (this.showNextBlockCounter === 2) {
+        this.createNextBlock();
+      }
+      this.showNextBlockCounter++;
     } else {
       this.addToAllSquares();
       if (this.isAboveLine()) {
         this.lose();
       } else {
         this.removeFullLines();
-        this.makeShape(this.shapes[getRandom(0, this.shapes.length - 1)]);
+        this.updateBlock();
+        this.showNextBlockCounter = 0;
       }
     }
   }
@@ -125,9 +162,9 @@ class Tetris {
   }
   moveEach() {
     if (true) {
-      for (let i = 0; i < this.shape.length; i++) {
-        this.shape[i].style.top =
-          this.shape[i].offsetTop + this.squareSize + "px";
+      for (let i = 0; i < this.block.length; i++) {
+        this.block[i].style.top =
+          this.block[i].offsetTop + this.squareSize + "px";
       }
     }
   }
@@ -152,10 +189,10 @@ class Tetris {
     this.ArrowDownPressed = false;
   }
   addToAllSquares() {
-    for (let i = 0; i < this.shape.length; i++) {
-      let rowIndex = this.shape[i].offsetTop / this.squareSize; // top
-      let columnIndex = this.shape[i].offsetLeft / this.squareSize; // left
-      this.allSquares[rowIndex][columnIndex] = this.shape[i];
+    for (let i = 0; i < this.block.length; i++) {
+      let rowIndex = this.block[i].offsetTop / this.squareSize; // top
+      let columnIndex = this.block[i].offsetLeft / this.squareSize; // left
+      this.allSquares[rowIndex][columnIndex] = this.block[i];
     }
   }
   slide(direction) {
@@ -169,46 +206,46 @@ class Tetris {
   }
   slideEach(val) {
     if (
-      !this.shapeOutside(this.shape, { left: val, top: 0 }) &&
-      !this.shapeOnSquares(this.shape, { left: val, top: 0 })
+      !this.shapeOutside(this.block, { left: val, top: 0 }) &&
+      !this.shapeOnSquares(this.block, { left: val, top: 0 })
     ) {
       // if (!this.onWall(val) & !this.onSquares(val)) {
-      for (let i = 0; i < this.shape.length; i++) {
-        this.shape[i].style.left = this.shape[i].offsetLeft + val + "px";
+      for (let i = 0; i < this.block.length; i++) {
+        this.block[i].style.left = this.block[i].offsetLeft + val + "px";
       }
     }
   }
   rotate() {
-    if (this.play === true && this.shapeType !== "O" && this.allowRotate()) {
-      let pivot = this.shape[1];
-      for (let i = 0; i < this.shape.length; i++) {
+    if (this.play === true && this.blockType !== "O" && this.allowRotate()) {
+      let pivot = this.block[1];
+      for (let i = 0; i < this.block.length; i++) {
         if (i !== 1) {
           let relPos = [
-            (this.shape[i].offsetLeft - pivot.offsetLeft) / this.squareSize,
-            (this.shape[i].offsetTop - pivot.offsetTop) / this.squareSize
+            (this.block[i].offsetLeft - pivot.offsetLeft) / this.squareSize,
+            (this.block[i].offsetTop - pivot.offsetTop) / this.squareSize
           ];
           let key = relPos[0].toString() + "," + relPos[1];
 
-          this.shape[i].style.left =
-            this.shape[i].offsetLeft + this.rotationPair[key].left + "px";
-          this.shape[i].style.top =
-            this.shape[i].offsetTop + this.rotationPair[key].top + "px";
+          this.block[i].style.left =
+            this.block[i].offsetLeft + this.rotationPair[key].left + "px";
+          this.block[i].style.top =
+            this.block[i].offsetTop + this.rotationPair[key].top + "px";
         }
       }
     }
   }
   allowRotate() {
-    let pivot = this.shape[1];
-    for (let i = 0; i < this.shape.length; i++) {
+    let pivot = this.block[1];
+    for (let i = 0; i < this.block.length; i++) {
       if (i !== 1) {
         let relPos = [
-          (this.shape[i].offsetLeft - pivot.offsetLeft) / this.squareSize,
-          (this.shape[i].offsetTop - pivot.offsetTop) / this.squareSize
+          (this.block[i].offsetLeft - pivot.offsetLeft) / this.squareSize,
+          (this.block[i].offsetTop - pivot.offsetTop) / this.squareSize
         ];
         let key = relPos[0].toString() + "," + relPos[1];
         if (
-          this.squareOutside(this.shape[i], this.rotationPair[key]) ||
-          this.squareOnSquares(this.shape[i], this.rotationPair[key])
+          this.squareOutside(this.block[i], this.rotationPair[key]) ||
+          this.squareOnSquares(this.block[i], this.rotationPair[key])
         ) {
           return false;
         }

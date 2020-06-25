@@ -44,7 +44,11 @@ hr{
   border: 20px solid $bg;
   border-radius: 10px;
   position: absolute;
+  &.preview{
+    border-color: lighten($bg, 10%) lighten($bg, 5%) lighten($bg, 5%) lighten($bg, 10%);
+  }
 }
+
 .message{
   position: absolute;
   top: calc(50% - 40px);
@@ -62,21 +66,21 @@ hr{
   align-items: center;
 
 }
-.score{
+.box{
   background-color: darken($bg, 2%);
-  border: 15px solid lighten($bg, 2%);
   padding: $gap/2;
-  &_item{
+  .item{
     display: flex;
     justify-content: space-between;
     align-items: baseline;
   }
-  &_value{
+  .value{
     margin-left: 15px;
     background-color: darken($bg, 5%);
     padding: 3px 10px;
     font-weight: 700;
   }
+
 }
 .hidden{
   display: none;
@@ -84,7 +88,7 @@ hr{
 .gray{
   filter: grayscale(1);
 }
-.shape {
+.block {
   overflow: hidden;
   position: absolute;
   top: 0;
@@ -93,7 +97,6 @@ hr{
   /*colors*/
   @each $key, $val in $colors {
     &_#{$key} {
-      background-color: $val;
       border-color: $val darken($val, 5%) darken($val, 5%) $val;
     }
   }

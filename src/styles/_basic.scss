@@ -8,13 +8,10 @@ $gap: 50px;
 
 /* base */
 
-html {
+*,
+*:after,
+*:before {
   box-sizing: border-box;
-  *,
-  *:after,
-  *:before {
-    box-sizing: inherit;
-  }
 }
 html,
 body {
@@ -42,7 +39,7 @@ body {
       "footer footer";
   }
   @media (min-width: 993px) {
-    grid-template-columns: 1fr 400px 250px 1fr;
+    grid-template-columns: 1fr 400px 200px 1fr;
     grid-template-areas:
       "header header header header"
       ". main aside ."
@@ -58,8 +55,6 @@ body {
 }
 .aside {
   grid-area: aside;
-  justify-self: center;
-  align-self: top;
 }
 .footer {
   grid-area: footer;
