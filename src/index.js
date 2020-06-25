@@ -76,9 +76,15 @@ class Tetris {
     this.nextBlockType = next.type;
   }
   updateBlock() {
-    this.block = this.nextBlock;
-    this.blockType = this.nextBlockType;
-    this.removeClass(this.block, "preview");
+    if (this.nextBlockType !== null) {
+      this.block = this.nextBlock;
+      this.blockType = this.nextBlockType;
+      this.removeClass(this.block, "preview");
+    } else {
+      let current = this.createBlock(this.plane);
+      this.block = current.block;
+      this.blockType = current.type;
+    }
     this.nextBlock = [];
     this.nextBlockType = null;
   }
@@ -118,8 +124,13 @@ class Tetris {
       !this.shapeOnSquares(this.block, { left: 0, top: this.squareSize })
     ) {
       this.moveEach();
-      if (this.showNextBlockCounter === 2) {
+      if (
+        (this.showNextBlockCounter === 1 &&
+          ["0", "I"].includes(this.blockType)) ||
+        this.showNextBlockCounter === 2
+      ) {
         this.createNextBlock();
+        this.showNextBlockCounter++;
       }
       this.showNextBlockCounter++;
     } else {
